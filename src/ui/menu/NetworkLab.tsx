@@ -16,7 +16,7 @@ import {
 	setLatencyScale,
 	setScenario,
 	subscribeMockSettings,
-} from "../../mocks/network";
+} from "../../mocks/scenarios";
 import { requestSync } from "../../storage/registrationOutbox";
 import { Button } from "../components/Button";
 
@@ -30,6 +30,7 @@ export function NetworkLab() {
 	const baseId = useId();
 	const queryClient = useQueryClient();
 	const dialogRef = useRef<HTMLDialogElement>(null);
+	const triggerRef = useRef<HTMLButtonElement>(null);
 	const [open, setOpen] = useState(false);
 	const [status, setStatus] = useState("");
 	const settings = useSyncExternalStore(
@@ -61,6 +62,7 @@ export function NetworkLab() {
 	function close() {
 		setOpen(false);
 		setStatus("");
+		triggerRef.current?.focus();
 	}
 
 	function handleCancel(event: SyntheticEvent<HTMLDialogElement>) {
@@ -90,6 +92,7 @@ export function NetworkLab() {
 	return (
 		<>
 			<Button
+				ref={triggerRef}
 				variant="secondary"
 				onClick={() => setOpen(true)}
 				data-testid="menu-network"

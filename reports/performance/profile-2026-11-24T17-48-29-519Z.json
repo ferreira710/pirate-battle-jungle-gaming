@@ -1,0 +1,85 @@
+{
+  "generatedAt": "2026-11-24T17:48:29.519Z",
+  "environment": {
+    "cpu": "AMD Ryzen 5 5600X 6-Core Processor",
+    "cores": 12,
+    "memoryGb": 31.2,
+    "os": "Linux 7.3.4-arch1-2 (x64)",
+    "browser": "Chromium 159.0.8154.6",
+    "headless": false,
+    "gpu": "ANGLE (NVIDIA Corporation, NVIDIA GeForce RTX 3060/PCIe/SSE2, OpenGL ES 3.2)",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "devicePixelRatio": 1
+  },
+  "match": {
+    "session time (s)": 180,
+    "enemy spawn time (s)": 3,
+    "seed": 7,
+    "ended by": "death",
+    "time played (s)": 45,
+    "score": 8
+  },
+  "frames": {
+    "frames measured": 7378,
+    "average FPS": 164.8,
+    "mean frame time (ms)": 6.07,
+    "p95 frame time (ms)": 6.1,
+    "p99 frame time (ms)": 6.2,
+    "worst frame (ms)": 24.3,
+    "frames over 16.7 ms (%)": 0.03
+  },
+  "entities": {
+    "average entities": 4,
+    "peak entities": 9,
+    "peak enemies": 5,
+    "peak projectiles": 3
+  },
+  "memory": [
+    {
+      "label": "menu (before cycles)",
+      "heapMb": 8.833953857421875,
+      "listeners": 213,
+      "nodes": 333,
+      "canvases": 0
+    },
+    {
+      "label": "after cycle 1",
+      "heapMb": 9.092300415039062,
+      "listeners": 220,
+      "nodes": 333,
+      "canvases": 0
+    },
+    {
+      "label": "after cycle 2",
+      "heapMb": 9.330066680908203,
+      "listeners": 222,
+      "nodes": 333,
+      "canvases": 0
+    },
+    {
+      "label": "after cycle 3",
+      "heapMb": 9.61785888671875,
+      "listeners": 220,
+      "nodes": 334,
+      "canvases": 0
+    },
+    {
+      "label": "after cycle 4",
+      "heapMb": 9.695701599121094,
+      "listeners": 221,
+      "nodes": 333,
+      "canvases": 0
+    },
+    {
+      "label": "after cycle 5",
+      "heapMb": 9.8170166015625,
+      "listeners": 219,
+      "nodes": 333,
+      "canvases": 0
+    }
+  ],
+  "memoryVerdict": "No continuous growth: heap changed 0.49 MB between cycles 2 and 5 and event listeners stayed stable."
+}

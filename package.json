@@ -13,7 +13,9 @@
 		"test:e2e:desktop": "playwright test --project=desktop-chromium",
 		"test:e2e:mobile": "playwright test --project=mobile-chromium",
 		"test:e2e:update": "playwright test --update-snapshots",
-		"test:e2e:report": "playwright show-report"
+		"test:e2e:report": "playwright show-report",
+		"perf": "playwright test -c playwright.perf.config.ts",
+		"perf:headless": "PERF_HEADLESS=1 playwright test -c playwright.perf.config.ts"
 	},
 	"dependencies": {
 		"@tanstack/react-query": "^5.108.4",

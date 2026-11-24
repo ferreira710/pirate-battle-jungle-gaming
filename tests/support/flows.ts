@@ -1,6 +1,6 @@
 import { expect, type Page } from "@playwright/test";
 import type { MatchRecord } from "../../src/api/contracts";
-import type { ScenarioId } from "../../src/mocks/network";
+import type { ScenarioId } from "../../src/mocks/scenarios";
 import type { BridgeState } from "../../src/testing/testBridge";
 import { readStored, run, STORAGE_KEYS, startMatch } from "./app";
 
