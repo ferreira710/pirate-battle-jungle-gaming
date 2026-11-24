@@ -11,8 +11,8 @@ export default defineConfig({
 	fullyParallel: true,
 	forbidOnly: isCI,
 	retries: isCI ? 1 : 0,
-	workers: isCI ? 2 : undefined,
-	timeout: 60_000,
+	workers: isCI ? 2 : 4,
+	timeout: 90_000,
 	expect: {
 		timeout: 10_000,
 		toHaveScreenshot: {
@@ -22,7 +22,7 @@ export default defineConfig({
 		},
 	},
 	snapshotPathTemplate:
-		"{testDir}/__screenshots__/{projectName}/{testFileName}/{arg}{ext}",
+		"{testDir}/__screenshots__/{platform}/{projectName}/{testFileName}/{arg}{ext}",
 	reporter: [
 		["list"],
 		["html", { open: "never", outputFolder: "playwright-report" }],

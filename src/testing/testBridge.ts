@@ -1,4 +1,8 @@
-import type { EnemyKind } from "../game/config/gameConfig";
+import type {
+	DeepReadonly,
+	EnemyKind,
+	WeaponSpec,
+} from "../game/config/gameConfig";
 import type {
 	GameSession,
 	MatchSnapshot,
@@ -22,6 +26,35 @@ export interface BridgeShip {
 	readonly radius: number;
 }
 
+export interface BridgeWeapon {
+	readonly cooldown: number;
+	readonly count: number;
+	readonly spacing: number;
+	readonly damage: number;
+	readonly speed: number;
+	readonly range: number;
+}
+
+export interface BridgeConfig {
+	readonly sessionTime: number;
+	readonly spawnInterval: number;
+	readonly fixedStep: number;
+	readonly minSpawnDistance: number;
+	readonly openingSequence: readonly EnemyKind[];
+	readonly front: BridgeWeapon;
+	readonly side: BridgeWeapon;
+	readonly chaser: {
+		readonly contactDamage: number;
+		readonly maxHealth: number;
+	};
+	readonly shooter: {
+		readonly attackRange: number;
+		readonly preferredDistance: number;
+		readonly maxHealth: number;
+		readonly cannon: BridgeWeapon;
+	};
+}
+
 export interface BridgeState {
 	readonly phase: MatchPhase;
 	readonly endReason: EndReason | null;
@@ -32,11 +65,7 @@ export interface BridgeState {
 	readonly seed: number;
 	readonly world: { readonly width: number; readonly height: number };
 	readonly colliders: readonly Rect[];
-	readonly config: {
-		readonly sessionTime: number;
-		readonly spawnInterval: number;
-		readonly fixedStep: number;
-	};
+	readonly config: BridgeConfig;
 	readonly player: BridgeShip & {
 		readonly cooldowns: Readonly<Record<PlayerWeapon, number>>;
 	};
@@ -59,6 +88,8 @@ export interface TestBridge {
 	state(): BridgeState | null;
 	snapshot(): MatchSnapshot | null;
 	advance(seconds: number): number;
+	step(seconds: number): BridgeState | null;
+	run(seconds: number, chunk: number): BridgeState[];
 	setTimeMode(mode: TimeMode): void;
 }
 
@@ -67,6 +98,8 @@ declare global {
 		__PIRATE_BATTLE__?: TestBridge;
 	}
 }
+
+const CHUNK_EPSILON = 1e-9;
 
 function params(): URLSearchParams {
 	return new URLSearchParams(window.location.search);
@@ -87,9 +120,20 @@ export function readClockParam(): TimeMode {
 	return params().get("clock") === "manual" ? "manual" : "realtime";
 }
 
+function weapon(spec: DeepReadonly<WeaponSpec>): BridgeWeapon {
+	return {
+		cooldown: spec.cooldown,
+		count: spec.projectileCount,
+		spacing: spec.spacing,
+		damage: spec.projectile.damage,
+		speed: spec.projectile.speed,
+		range: spec.projectile.range,
+	};
+}
+
 function serialize(session: GameSession): BridgeState {
 	const state = session.getState();
-	const { player } = state;
+	const { player, config } = state;
 
 	return {
 		phase: state.phase,
@@ -102,9 +146,23 @@ function serialize(session: GameSession): BridgeState {
 		world: { width: state.map.width, height: state.map.height },
 		colliders: state.map.colliders.map((rect) => ({ ...rect })),
 		config: {
-			sessionTime: state.config.match.duration,
-			spawnInterval: state.config.spawn.interval,
-			fixedStep: state.config.simulation.fixedStep,
+			sessionTime: config.match.duration,
+			spawnInterval: config.spawn.interval,
+			fixedStep: config.simulation.fixedStep,
+			minSpawnDistance: config.spawn.minDistanceFromPlayer,
+			openingSequence: [...config.spawn.openingSequence],
+			front: weapon(config.player.frontCannon),
+			side: weapon(config.player.sideCannons),
+			chaser: {
+				contactDamage: config.chaser.contactDamage,
+				maxHealth: config.chaser.ship.maxHealth,
+			},
+			shooter: {
+				attackRange: config.shooter.attackRange,
+				preferredDistance: config.shooter.preferredDistance,
+				maxHealth: config.shooter.ship.maxHealth,
+				cannon: weapon(config.shooter.cannon),
+			},
 		},
 		player: {
 			id: player.id,
@@ -150,6 +208,22 @@ function createBridge(): TestBridge {
 		state: () => (current ? serialize(current) : null),
 		snapshot: () => (current ? current.getSnapshot() : null),
 		advance: (seconds) => (current ? current.advance(seconds) : 0),
+		step: (seconds) => {
+			if (!current) return null;
+			current.advance(seconds);
+			return serialize(current);
+		},
+		run: (seconds, chunk) => {
+			const samples: BridgeState[] = [];
+			if (!current || chunk <= 0) return samples;
+			const chunks = Math.ceil(seconds / chunk - CHUNK_EPSILON);
+			for (let index = 0; index < chunks; index += 1) {
+				current.advance(chunk);
+				samples.push(serialize(current));
+				if (current.getState().phase !== "running") break;
+			}
+			return samples;
+		},
 		setTimeMode: (mode) => current?.setTimeMode(mode),
 	};
 }

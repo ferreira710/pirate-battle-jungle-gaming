@@ -100,6 +100,26 @@ export async function readState(page: Page): Promise<BridgeState> {
 	return state;
 }
 
+export async function step(page: Page, seconds: number): Promise<BridgeState> {
+	const state = await page.evaluate(
+		(value) => window.__PIRATE_BATTLE__?.step(value) ?? null,
+		seconds,
+	);
+	if (!state) throw new Error("No active match");
+	return state;
+}
+
+export async function run(
+	page: Page,
+	seconds: number,
+	chunk: number,
+): Promise<BridgeState[]> {
+	return page.evaluate(
+		([total, size]) => window.__PIRATE_BATTLE__?.run(total, size) ?? [],
+		[seconds, chunk] as const,
+	);
+}
+
 export async function holdKeys(
 	page: Page,
 	keys: readonly string[],

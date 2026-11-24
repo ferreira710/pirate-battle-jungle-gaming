@@ -29,6 +29,7 @@ export interface GameRendererOptions {
 	session: GameSession;
 	textures: GameTextures;
 	layers: readonly LayerFactory[];
+	maxFps?: number;
 	onViewportChange?: (viewport: Viewport) => void;
 }
 
@@ -53,6 +54,7 @@ export class GameRenderer {
 	private readonly session: GameSession;
 	private readonly textures: GameTextures;
 	private readonly factories: readonly LayerFactory[];
+	private readonly maxFps: number | undefined;
 	private readonly onViewportChange: (viewport: Viewport) => void;
 	private host: HTMLElement | null = null;
 	private resizeObserver: ResizeObserver | null = null;
@@ -71,6 +73,7 @@ export class GameRenderer {
 		this.session = options.session;
 		this.textures = options.textures;
 		this.factories = options.layers;
+		this.maxFps = options.maxFps;
 		this.onViewportChange = options.onViewportChange ?? (() => undefined);
 	}
 
@@ -98,6 +101,7 @@ export class GameRenderer {
 		}
 
 		this.initialized = true;
+		if (this.maxFps !== undefined) this.app.ticker.maxFPS = this.maxFps;
 
 		const canvas = this.app.canvas;
 		canvas.style.display = "block";

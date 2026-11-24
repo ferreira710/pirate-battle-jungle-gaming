@@ -23,6 +23,7 @@ import { PauseDialog } from "./PauseDialog";
 import { TouchControls } from "./TouchControls";
 
 const RESULT_DELAY_MS = 1500;
+const MANUAL_CLOCK_MAX_FPS = 10;
 const LAYERS = [
 	createArenaLayer,
 	createShipLayer,
@@ -47,13 +48,14 @@ export function Battle({ textures, onRestart }: BattleProps) {
 		let active = true;
 		let resultTimer: number | undefined;
 
+		const timeMode = readClockParam();
 		const config = createMatchConfig(getOptions());
 		const map = buildArenaMap(DEFAULT_ARENA, config.world);
 		const created = new GameSession({
 			config,
 			map,
 			seed: readSeedParam() ?? randomSeed(),
-			timeMode: readClockParam(),
+			timeMode,
 			onEnded: (outcome) => {
 				completeMatch(outcome);
 				resultTimer = window.setTimeout(() => {
@@ -66,6 +68,7 @@ export function Battle({ textures, onRestart }: BattleProps) {
 			session: created,
 			textures,
 			layers: LAYERS,
+			maxFps: timeMode === "manual" ? MANUAL_CLOCK_MAX_FPS : undefined,
 		});
 		const unbindAudio = bindGameAudio(created);
 
